@@ -98,3 +98,17 @@ Ground state energy in cc-pVTZ basis: -1.89226657 Ha (56 spin-orbitals)
 
 We can see that OptOrbVQE greatly improves upon the VQE ground state energy, despite using the same number of qubits, however there is still room to improve, as evidenced by the fact that the energy in the full cc-pVTZ active space is still much more accurate. The accuracy of OptOrbVQE can be systematically improved
 by increasing the value of `num_reduced_spin_orbitals` at the cost of more qubits being required.
+
+## GPU Acceleration
+
+The orbital optimization subroutine supports GPU acceleration through its use of PyTorch tensors. This may be enabled by setting `device='cuda'` when initializing an instance of `PartialUnitaryProjectionOptimizer`:
+
+```
+partial_unitary_optimizer = PartialUnitaryProjectionOptimizer(initial_BBstepsize=10**-3,
+                                                              stopping_tolerance=10**-5,
+                                                              maxiter=10000,
+                                                              gradient_method='autograd',
+                                                              device='cuda')
+```
+
+This can be useful when the starting basis and its resulting one and two body integral tensors are quite large. By default, the CPU is used.

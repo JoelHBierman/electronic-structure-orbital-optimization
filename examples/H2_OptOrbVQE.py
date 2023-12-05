@@ -1,4 +1,5 @@
 import numpy as np
+import torch
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.mappers import JordanWignerMapper, ParityMapper
@@ -9,7 +10,7 @@ from qiskit_nature.second_q.circuit.library import HartreeFock, UCCSD
 
 from electronic_structure_algorithms.orbital_optimization import PartialUnitaryProjectionOptimizer, OptOrbVQE
 
-#from time import perf_counter
+from time import perf_counter
 
 estimator = Estimator(approximation=True)
 mapper= JordanWignerMapper()
@@ -38,31 +39,33 @@ ansatz = UCCSD(qubit_mapper=mapper,
                initial_state=HF_state)
 
 
-#outer_iteration = 0
-#vqe_start_time = perf_counter()
-#def vqe_callback(eval_count, parameters, mean, std):
-#        global vqe_start_time
-#        print(f'Outer loop iteration: {outer_iteration}, function evaluation: {eval_count}, energy: {mean}, time = {perf_counter() - vqe_start_time}')
+outer_iteration = 0
+vqe_start_time = perf_counter()
+def vqe_callback(eval_count, parameters, mean, std):
+        global vqe_start_time
+        print(f'Outer loop iteration: {outer_iteration}, function evaluation: {eval_count}, energy: {mean}, time = {perf_counter() - vqe_start_time}')
 
-#        vqe_start_time = perf_counter()
+        vqe_start_time = perf_counter()
 
 
-#orbital_rotation_start_time = perf_counter()
-#def orbital_rotation_callback(orbital_rotation_iteration, energy):
-#        global orbital_rotation_start_time
-#        print(f'Outer loop iteration: {outer_iteration}, Iteration: {orbital_rotation_iteration}, energy: {energy}, time: {perf_counter() - orbital_rotation_start_time}')
-#        orbital_rotation_start_time = perf_counter()
+orbital_rotation_start_time = perf_counter()
+def orbital_rotation_callback(orbital_rotation_iteration, energy):
+        global orbital_rotation_start_time
+        print(f'Outer loop iteration: {outer_iteration}, Iteration: {orbital_rotation_iteration}, energy: {energy}, time: {perf_counter() - orbital_rotation_start_time}')
+        orbital_rotation_start_time = perf_counter()
         
 
-#def outer_loop_callback(optorb_iteration, vqe_result, optorb_result):
-#        global outer_iteration
-#        outer_iteration += 1
+def outer_loop_callback(optorb_iteration, vqe_result, optorb_result):
+        global outer_iteration
+        outer_iteration += 1
 
+print(torch.cuda.is_available())
 
 partial_unitary_optimizer = PartialUnitaryProjectionOptimizer(initial_BBstepsize=10**-3,
                                                               stopping_tolerance=10**-5,
                                                               maxiter=10000,
                                                               gradient_method='autograd')
+
 
 vqe_instance = VQE(ansatz=ansatz,
                    initial_point=np.zeros(ansatz.num_parameters),
