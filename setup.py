@@ -9,10 +9,11 @@ with open('requirements.txt') as fp:
     install_requires = fp.read()
 
 setuptools.setup(
-    name="my_super_project",
-    description="My Super Project",
+    name="orbital-optimization",
+    description="A collection of quantum algorithms to solve the electronic structure problem using orbital optimization.",
     long_description=long_description,
     packages=setuptools.find_packages(),
     install_requires=install_requires,
-    python_requires='>=3.6'
+    python_requires='>=3.8',
+    version='0.1.0'
 )

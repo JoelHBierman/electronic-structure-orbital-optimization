@@ -10,8 +10,12 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Algorithms test module"""
+"""Algorithms Test Case"""
 
-from .algorithms_test_case import QiskitAlgorithmsTestCase
+from qiskit.test import QiskitTestCase
 
-__all__ = ["QiskitAlgorithmsTestCase"]
+
+class QiskitAlgorithmsTestCase(QiskitTestCase):
+    """Algorithms test Case"""
+
+    pass
