@@ -276,7 +276,7 @@ class VQD(VariationalAlgorithm, Eigensolver):
                 initial_point = validate_initial_point(initial_points[step - 1], self.ansatz[step - 1])
 
             if step > 1:
-                prev_states.append(self.ansatz[step - 2].bind_parameters(result.optimal_points[-1]))
+                prev_states.append(self.ansatz[step - 2].assign_parameters(result.optimal_points[-1]))
 
             self._eval_count = 0
             energy_evaluation = self._get_evaluate_energy(

@@ -6,7 +6,7 @@ from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.mappers import JordanWignerMapper
 from qiskit_algorithms.optimizers import L_BFGS_B, COBYLA
 from qiskit_aer.primitives import Estimator
-from qiskit_nature.second_q.circuit.library import UCCSD
+from qiskit_nature.second_q.circuit.library import UCCSD, HartreeFock
 from qiskit_nature.second_q.operators.tensor_ordering import to_physicist_ordering
 
 from electronic_structure_algorithms.orbital_optimization import PartialUnitaryProjectionOptimizer, OptOrbSSVQE
@@ -22,7 +22,7 @@ driver = PySCFDriver(atom=f'H 0 0 0; H 0 0 {0.735}',
                      charge=0,
                      spin=0,
                      unit=DistanceUnit.ANGSTROM,
-                     basis='cc-pVTZ')
+                     basis='6-31G')
 
 q_molecule = driver.run()
 num_particles = q_molecule.num_particles
@@ -65,6 +65,22 @@ cis_states = get_CIS_states(one_body_integrals=transformed_one_body_integrals,
 initial_states = [QuantumCircuit(ansatz.num_qubits) for n in range(num_states)]
 for n in range(num_states):
         initial_states[n].initialize(cis_states[n], initial_states[n].qubits)
+
+
+HF_state = HartreeFock(qubit_mapper=mapper,
+                       num_spatial_orbitals=int(num_reduced_qubits/2),
+                       num_particles=num_particles)
+        
+excited_HF = QuantumCircuit(4)
+excited_HF.x(1)
+excited_HF.x(2)
+print(excited_HF)
+
+initial_states = [HF_state, excited_HF]
+        
+uccsd = UCCSD(qubit_mapper=mapper,
+               num_spatial_orbitals=int(num_reduced_qubits/2),
+               num_particles=num_particles)
 
 outer_iteration = 0
 vqe_start_time = perf_counter()
@@ -115,7 +131,7 @@ optorbssvqe_instance = OptOrbSSVQE(problem=q_molecule,
                                spin_conserving=True,
                                stopping_tolerance=10**-5,
                                outer_loop_callback=outer_loop_callback,
-                               partial_unitary_random_perturbation=0.01,
+                               partial_unitary_random_perturbation=0.0,
                                eigensolver_random_perturbation=0.0)
 
 ground_state_energy_result = optorbssvqe_instance.compute_energies()

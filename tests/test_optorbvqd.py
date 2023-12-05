@@ -1,4 +1,4 @@
-"""Test OptOrbVQE"""
+"""Test OptOrbVQD"""
 
 import unittest
 
@@ -6,20 +6,25 @@ import numpy as np
 import torch
 from ddt import data, ddt
 
+from qiskit import QuantumCircuit
+
 from qiskit_algorithms.optimizers import L_BFGS_B
+from qiskit_algorithms.state_fidelities import ComputeUncompute
 
 import numpy as np
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.mappers import JordanWignerMapper
-from qiskit_algorithms.minimum_eigensolvers import VQE
-from qiskit_aer.primitives import Estimator
+from qiskit_aer.primitives import Estimator, Sampler
 from qiskit_nature.second_q.circuit.library import HartreeFock, UCCSD
 from qiskit_nature.second_q.operators.tensor_ordering import to_physicist_ordering
 
-from electronic_structure_algorithms.orbital_optimization import PartialUnitaryProjectionOptimizer, OptOrbVQE
+from electronic_structure_algorithms.orbital_optimization import PartialUnitaryProjectionOptimizer, OptOrbVQD
+from electronic_structure_algorithms.excited_states_eigensolvers import VQD
 
 estimator = Estimator(approximation=True)
+sampler = Sampler(run_options={'shots': None})
+fidelity = ComputeUncompute(sampler=sampler)
 mapper=JordanWignerMapper()
 
 driver = PySCFDriver(atom=f'H 0 0 0; H 0 0 {0.735}',
@@ -37,32 +42,31 @@ two_body_integrals = torch.from_numpy(np.asarray(-1*to_physicist_ordering(es_pro
 
 integrals = one_body_integrals, two_body_integrals
 
-HF_state = HartreeFock(qubit_mapper=mapper,
-                       num_spatial_orbitals=int(num_reduced_qubits/2),
-                       num_particles=num_particles)
-
-uccsd = UCCSD(qubit_mapper=mapper,
-               num_spatial_orbitals=int(num_reduced_qubits/2),
-               num_particles=num_particles,
-               initial_state=HF_state)
-
 @ddt
-class TestOptOrbVQE(unittest.TestCase):
-    """Test OptOrbVQE"""
+class TestOptOrbVQD(unittest.TestCase):
+    """Test OptOrbVQD"""
 
     def setUp(self):
         super().setUp()
 
-        self.HF_state = HartreeFock(qubit_mapper=mapper,
+        self.k = 2
+        HF_state = HartreeFock(qubit_mapper=mapper,
                        num_spatial_orbitals=int(num_reduced_qubits/2),
                        num_particles=num_particles)
         
-        self.uccsd = UCCSD(qubit_mapper=mapper,
+        excited_HF = QuantumCircuit(4)
+        excited_HF.x(1)
+        excited_HF.x(2)
+
+        self.initial_states = [HF_state, excited_HF]
+        
+        self.uccsd_list = [UCCSD(qubit_mapper=mapper,
                num_spatial_orbitals=int(num_reduced_qubits/2),
                num_particles=num_particles,
-               initial_state=HF_state)
+               reps=2,
+               initial_state=self.initial_states[n]) for n in range(self.k)]
 
-        self.h2_energy = -1.8661038079694765
+        self.h2_energies = [-1.8540352 , -1.37044389]
         self.estimator = Estimator(approximation=True)
 
     @data(integrals)
@@ -73,15 +77,18 @@ class TestOptOrbVQE(unittest.TestCase):
                                                               maxiter=10000,
                                                               gradient_method='autograd')
         
-        vqe_instance = VQE(ansatz=self.uccsd,
-                initial_point=np.zeros(self.uccsd.num_parameters),
-                optimizer=L_BFGS_B(),
-                estimator=estimator)
+        vqd_instance = VQD(k=self.k,
+                   ansatz=self.uccsd_list,
+                   initial_point=[np.zeros(self.uccsd_list[n].num_parameters) for n in range(self.k)],
+                   optimizer=L_BFGS_B(),
+                   estimator=estimator,
+                   fidelity=fidelity,
+                   betas=[2,2])
         
-        optorbvqe_instance = OptOrbVQE(problem=None,
+        optorbvqd_instance = OptOrbVQD(problem=None,
                                integral_tensors=integrals,
                                num_spin_orbitals=num_reduced_qubits,
-                               ground_state_solver=vqe_instance,
+                               excited_states_solver=vqd_instance,
                                mapper=mapper,
                                estimator=estimator,
                                partial_unitary_optimizer=partial_unitary_optimizer,
@@ -89,11 +96,11 @@ class TestOptOrbVQE(unittest.TestCase):
                                wavefuntion_real=True,
                                spin_conserving=True)
         
-        result = optorbvqe_instance.compute_minimum_energy()
+        result = optorbvqd_instance.compute_energies()
 
         with self.subTest(msg="test eigenvalue, provided integrals"):
             np.testing.assert_array_almost_equal(
-                [result.eigenvalue.real], [self.h2_energy], decimal=3
+                [result.eigenvalues.real], [self.h2_energies], decimal=3
             )
 
 
@@ -105,15 +112,18 @@ class TestOptOrbVQE(unittest.TestCase):
                                                               maxiter=10000,
                                                               gradient_method='autograd')
         
-        vqe_instance = VQE(ansatz=self.uccsd,
-                initial_point=np.zeros(self.uccsd.num_parameters),
-                optimizer=L_BFGS_B(),
-                estimator=estimator)
+        vqd_instance = VQD(k=self.k,
+                   ansatz=self.uccsd_list,
+                   initial_point=[np.zeros(self.uccsd_list[n].num_parameters) for n in range(self.k)],
+                   optimizer=L_BFGS_B(),
+                   estimator=estimator,
+                   fidelity=fidelity,
+                   betas=[2,2])
         
-        optorbvqe_instance = OptOrbVQE(problem=problem,
+        optorbvqd_instance = OptOrbVQD(problem=problem,
                                integral_tensors = None,
                                num_spin_orbitals=num_reduced_qubits,
-                               ground_state_solver=vqe_instance,
+                               excited_states_solver=vqd_instance,
                                mapper=mapper,
                                estimator=estimator,
                                partial_unitary_optimizer=partial_unitary_optimizer,
@@ -121,11 +131,11 @@ class TestOptOrbVQE(unittest.TestCase):
                                wavefuntion_real=True,
                                spin_conserving=True)
         
-        result = optorbvqe_instance.compute_minimum_energy()
+        result = optorbvqd_instance.compute_energies()
 
         with self.subTest(msg="test eigenvalue, provided ElectronicStructureProblem"):
             np.testing.assert_array_almost_equal(
-                [result.eigenvalue.real], [self.h2_energy], decimal=3
+                [result.eigenvalues.real], [self.h2_energies], decimal=3
             )
 
     
@@ -137,15 +147,18 @@ class TestOptOrbVQE(unittest.TestCase):
                                                               maxiter=10000,
                                                               gradient_method='autograd')
         
-        vqe_instance = VQE(ansatz=self.uccsd,
-                initial_point=np.zeros(self.uccsd.num_parameters),
-                optimizer=L_BFGS_B(),
-                estimator=estimator)
+        vqd_instance = VQD(k=self.k,
+                   ansatz=self.uccsd_list,
+                   initial_point=[np.zeros(self.uccsd_list[n].num_parameters) for n in range(self.k)],
+                   optimizer=L_BFGS_B(),
+                   estimator=estimator,
+                   fidelity=fidelity,
+                   betas=[2,2])
         
-        optorbvqe_instance = OptOrbVQE(problem=None,
+        optorbvqd_instance = OptOrbVQD(problem=None,
                                integral_tensors=integrals,
                                num_spin_orbitals=num_reduced_qubits,
-                               ground_state_solver=vqe_instance,
+                               excited_states_solver=vqd_instance,
                                mapper=mapper,
                                estimator=estimator,
                                partial_unitary_optimizer=partial_unitary_optimizer,
@@ -153,11 +166,11 @@ class TestOptOrbVQE(unittest.TestCase):
                                wavefuntion_real=False,
                                spin_conserving=False)
         
-        result = optorbvqe_instance.compute_minimum_energy()
+        result = optorbvqd_instance.compute_energies()
 
         with self.subTest(msg="test eigenvalue, provided integrals, no RDM symmetry exploited"):
             np.testing.assert_array_almost_equal(
-                [result.eigenvalue.real], [self.h2_energy], decimal=3
+                [result.eigenvalues.real], [self.h2_energies], decimal=3
             )
 
 
@@ -169,15 +182,18 @@ class TestOptOrbVQE(unittest.TestCase):
                                                               maxiter=10000,
                                                               gradient_method='autograd')
         
-        vqe_instance = VQE(ansatz=self.uccsd,
-                initial_point=np.zeros(self.uccsd.num_parameters),
-                optimizer=L_BFGS_B(),
-                estimator=estimator)
+        vqd_instance = VQD(k=self.k,
+                   ansatz=self.uccsd_list,
+                   initial_point=[np.zeros(self.uccsd_list[n].num_parameters) for n in range(self.k)],
+                   optimizer=L_BFGS_B(),
+                   estimator=estimator,
+                   fidelity=fidelity,
+                   betas=[2,2])
         
-        optorbvqe_instance = OptOrbVQE(problem=problem,
+        optorbvqd_instance = OptOrbVQD(problem=problem,
                                integral_tensors = None,
                                num_spin_orbitals=num_reduced_qubits,
-                               ground_state_solver=vqe_instance,
+                               excited_states_solver=vqd_instance,
                                mapper=mapper,
                                estimator=estimator,
                                partial_unitary_optimizer=partial_unitary_optimizer,
@@ -185,11 +201,11 @@ class TestOptOrbVQE(unittest.TestCase):
                                wavefuntion_real=False,
                                spin_conserving=False)
         
-        result = optorbvqe_instance.compute_minimum_energy()
+        result = optorbvqd_instance.compute_energies()
 
         with self.subTest(msg="test eigenvalue, provided ElectronicStructureProblem, no RDM symmetry exploited"):
             np.testing.assert_array_almost_equal(
-                [result.eigenvalue.real], [self.h2_energy], decimal=3
+                [result.eigenvalues.real], [self.h2_energies], decimal=3
             )
 
 

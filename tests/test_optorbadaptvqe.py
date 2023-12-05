@@ -1,4 +1,4 @@
-"""Test OptOrbVQE"""
+"""Test OptOrbAdaptVQE"""
 
 import unittest
 
@@ -12,14 +12,13 @@ import numpy as np
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.mappers import JordanWignerMapper
-from qiskit_algorithms.minimum_eigensolvers import VQE
+from qiskit_algorithms.minimum_eigensolvers import VQE, AdaptVQE
 from qiskit_aer.primitives import Estimator
 from qiskit_nature.second_q.circuit.library import HartreeFock, UCCSD
 from qiskit_nature.second_q.operators.tensor_ordering import to_physicist_ordering
 
-from electronic_structure_algorithms.orbital_optimization import PartialUnitaryProjectionOptimizer, OptOrbVQE
+from electronic_structure_algorithms.orbital_optimization import PartialUnitaryProjectionOptimizer, OptOrbAdaptVQE
 
-estimator = Estimator(approximation=True)
 mapper=JordanWignerMapper()
 
 driver = PySCFDriver(atom=f'H 0 0 0; H 0 0 {0.735}',
@@ -62,8 +61,9 @@ class TestOptOrbVQE(unittest.TestCase):
                num_particles=num_particles,
                initial_state=HF_state)
 
-        self.h2_energy = -1.8661038079694765
-        self.estimator = Estimator(approximation=True)
+        self.h2_energy = -1.866104213792463
+        self.estimator = Estimator(approximation=True,
+                                   run_options={'shots': 10**30})
 
     @data(integrals)
     def test_ground_state_integrals(self, integrals):
@@ -76,14 +76,16 @@ class TestOptOrbVQE(unittest.TestCase):
         vqe_instance = VQE(ansatz=self.uccsd,
                 initial_point=np.zeros(self.uccsd.num_parameters),
                 optimizer=L_BFGS_B(),
-                estimator=estimator)
+                estimator=self.estimator)
         
-        optorbvqe_instance = OptOrbVQE(problem=None,
+        adaptvqe_instance = AdaptVQE(solver=vqe_instance)
+        
+        optorbvqe_instance = OptOrbAdaptVQE(problem=None,
                                integral_tensors=integrals,
                                num_spin_orbitals=num_reduced_qubits,
-                               ground_state_solver=vqe_instance,
+                               ground_state_solver=adaptvqe_instance,
                                mapper=mapper,
-                               estimator=estimator,
+                               estimator=self.estimator,
                                partial_unitary_optimizer=partial_unitary_optimizer,
                                maxiter=20,
                                wavefuntion_real=True,
@@ -108,14 +110,16 @@ class TestOptOrbVQE(unittest.TestCase):
         vqe_instance = VQE(ansatz=self.uccsd,
                 initial_point=np.zeros(self.uccsd.num_parameters),
                 optimizer=L_BFGS_B(),
-                estimator=estimator)
+                estimator=self.estimator)
         
-        optorbvqe_instance = OptOrbVQE(problem=problem,
+        adaptvqe_instance = AdaptVQE(solver=vqe_instance)
+        
+        optorbvqe_instance = OptOrbAdaptVQE(problem=problem,
                                integral_tensors = None,
                                num_spin_orbitals=num_reduced_qubits,
-                               ground_state_solver=vqe_instance,
+                               ground_state_solver=adaptvqe_instance,
                                mapper=mapper,
-                               estimator=estimator,
+                               estimator=self.estimator,
                                partial_unitary_optimizer=partial_unitary_optimizer,
                                maxiter=20,
                                wavefuntion_real=True,
@@ -140,14 +144,16 @@ class TestOptOrbVQE(unittest.TestCase):
         vqe_instance = VQE(ansatz=self.uccsd,
                 initial_point=np.zeros(self.uccsd.num_parameters),
                 optimizer=L_BFGS_B(),
-                estimator=estimator)
+                estimator=self.estimator)
         
-        optorbvqe_instance = OptOrbVQE(problem=None,
+        adaptvqe_instance = AdaptVQE(solver=vqe_instance)
+        
+        optorbvqe_instance = OptOrbAdaptVQE(problem=None,
                                integral_tensors=integrals,
                                num_spin_orbitals=num_reduced_qubits,
-                               ground_state_solver=vqe_instance,
+                               ground_state_solver=adaptvqe_instance,
                                mapper=mapper,
-                               estimator=estimator,
+                               estimator=self.estimator,
                                partial_unitary_optimizer=partial_unitary_optimizer,
                                maxiter=20,
                                wavefuntion_real=False,
@@ -172,14 +178,16 @@ class TestOptOrbVQE(unittest.TestCase):
         vqe_instance = VQE(ansatz=self.uccsd,
                 initial_point=np.zeros(self.uccsd.num_parameters),
                 optimizer=L_BFGS_B(),
-                estimator=estimator)
+                estimator=self.estimator)
         
-        optorbvqe_instance = OptOrbVQE(problem=problem,
+        adaptvqe_instance = AdaptVQE(solver=vqe_instance)
+        
+        optorbvqe_instance = OptOrbAdaptVQE(problem=problem,
                                integral_tensors = None,
                                num_spin_orbitals=num_reduced_qubits,
-                               ground_state_solver=vqe_instance,
+                               ground_state_solver=adaptvqe_instance,
                                mapper=mapper,
-                               estimator=estimator,
+                               estimator=self.estimator,
                                partial_unitary_optimizer=partial_unitary_optimizer,
                                maxiter=20,
                                wavefuntion_real=False,

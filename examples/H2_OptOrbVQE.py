@@ -1,7 +1,7 @@
 import numpy as np
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.units import DistanceUnit
-from qiskit_nature.second_q.mappers import JordanWignerMapper
+from qiskit_nature.second_q.mappers import JordanWignerMapper, ParityMapper
 from qiskit_algorithms.minimum_eigensolvers import VQE
 from qiskit_algorithms.optimizers import L_BFGS_B, COBYLA
 from qiskit_aer.primitives import Estimator
@@ -12,13 +12,13 @@ from electronic_structure_algorithms.orbital_optimization import PartialUnitaryP
 #from time import perf_counter
 
 estimator = Estimator(approximation=True)
-mapper=JordanWignerMapper()
+mapper= JordanWignerMapper()
 
 driver = PySCFDriver(atom=f'H 0 0 0; H 0 0 {0.735}',
                      charge=0,
                      spin=0,
                      unit=DistanceUnit.ANGSTROM,
-                     basis='cc-pVTZ')
+                     basis='6-31G')
 
 q_molecule = driver.run()
 num_particles = q_molecule.num_particles

@@ -86,10 +86,7 @@ class OptOrbMCVQE(OptOrbEigensolver):
 
 
         self.eigensolver_random_perturbation = eigensolver_random_perturbation
-        print(self.initial_partial_unitary)
-        print()
-        print(self.one_body_integrals)
-        print()
+    
         init_partial_unitary = torch.block_diag(self.initial_partial_unitary, self.initial_partial_unitary)
 
         rotated_one_body_integrals = torch.einsum('pq,pi,qj->ij',
@@ -104,7 +101,6 @@ class OptOrbMCVQE(OptOrbEigensolver):
 
             solver.one_body_integrals = rotated_one_body_integrals
             solver.two_body_integrals = rotated_two_body_integrals
-            print(f'set rotated integrals')
 
     def parameter_update_rule(self, result: OptOrbEigensolverResult,
                                     iteration: int):

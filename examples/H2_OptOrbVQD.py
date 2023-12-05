@@ -25,7 +25,7 @@ driver = PySCFDriver(atom=f'H 0 0 0; H 0 0 {0.735}',
                      charge=0,
                      spin=0,
                      unit=DistanceUnit.ANGSTROM,
-                     basis='cc-pVTZ')
+                     basis='6-31G')
 
 q_molecule = driver.run()
 num_particles = q_molecule.num_particles
@@ -76,6 +76,16 @@ for state in initial_states:
 
                 if instruction.operation.name == 'reset':
                         del state.data[n]
+
+HF_state = HartreeFock(qubit_mapper=mapper,
+                       num_spatial_orbitals=int(num_reduced_qubits/2),
+                       num_particles=num_particles)
+        
+excited_HF = QuantumCircuit(4)
+excited_HF.x(1)
+excited_HF.x(2)
+
+initial_states = [HF_state, excited_HF]
 
 ansatz_list = [UCCSD(qubit_mapper=mapper,
                num_spatial_orbitals=int(num_reduced_qubits/2),

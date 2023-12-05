@@ -186,9 +186,9 @@ class OptOrbEigensolver(BaseOptOrbSolver):
 
             self._energy_convergence_list.append(np.dot(self.weight_vector, energies))
             if isinstance(self._excited_states_solver_list[self.outer_loop_iteration], SSVQE) or isinstance(self._excited_states_solver_list[self.outer_loop_iteration], MCVQE):
-                states = [self._excited_states_solver_list[self.outer_loop_iteration].initial_states[n].compose(self._excited_states_solver_list[self.outer_loop_iteration].ansatz).bind_parameters(opt_params[n]) for n in range(self.num_states)]
+                states = [self._excited_states_solver_list[self.outer_loop_iteration].initial_states[n].compose(self._excited_states_solver_list[self.outer_loop_iteration].ansatz).assign_parameters(opt_params[n]) for n in range(self.num_states)]
             else:
-                states = [self._excited_states_solver_list[self.outer_loop_iteration].ansatz[n].bind_parameters(opt_params[n]) for n in range(self.num_states)]
+                states = [self._excited_states_solver_list[self.outer_loop_iteration].ansatz[n].assign_parameters(opt_params[n]) for n in range(self.num_states)]
             
             if self.stopping_condition(self.outer_loop_iteration) == True:
                 break

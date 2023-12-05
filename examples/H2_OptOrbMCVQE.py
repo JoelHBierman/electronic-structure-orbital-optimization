@@ -18,7 +18,7 @@ driver = PySCFDriver(atom=f'H 0 0 0; H 0 0 {0.735}',
                      charge=0,
                      spin=0,
                      unit=DistanceUnit.ANGSTROM,
-                     basis='cc-pVTZ')
+                     basis='6-31G')
 
 q_molecule = driver.run()
 num_particles = q_molecule.num_particles

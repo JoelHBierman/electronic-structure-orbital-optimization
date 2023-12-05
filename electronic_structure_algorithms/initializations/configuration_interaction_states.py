@@ -354,7 +354,6 @@ def get_CIS_states(one_body_integrals: np.ndarray,
 def get_CISD_states(one_body_integrals: np.ndarray,
                     two_body_integrals: np.ndarray,
                     num_particles: tuple[int, int],
-                    num_spin_orbitals: int,
                     state_representation: Optional[str] = 'sparse',  # must be either 'sparse' or 'dense'
                     truncation_threshold: Optional[float] = 10 ** -10):
     
@@ -377,7 +376,7 @@ def get_CISD_states(one_body_integrals: np.ndarray,
             The CIS states.
 
     """
-
+    num_spin_orbitals = one_body_integrals.shape[0]
     num_molecular_orbitals = int(num_spin_orbitals / 2)
     num_alpha = num_particles[0]
     num_beta = num_particles[1]
