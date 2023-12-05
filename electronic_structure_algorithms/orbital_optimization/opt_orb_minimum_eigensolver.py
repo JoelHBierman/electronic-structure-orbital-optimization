@@ -15,13 +15,13 @@ from .base_opt_orb_solver import BaseOptOrbSolver, BaseOptOrbResult
 class OptOrbMinimumEigensolver(BaseOptOrbSolver):
 
     def __init__(self,
-        problem: ElectronicStructureProblem,
-        integral_tensors: Optional[Union[tuple[torch.Tensor, torch.Tensor], tuple[np.ndarray, np.ndarray]]],
         num_spin_orbitals: int,
         ground_state_solver: MinimumEigensolver,
         mapper: QubitMapper,
         estimator: BaseEstimator,
         partial_unitary_optimizer: PartialUnitaryProjectionOptimizer,
+        problem: ElectronicStructureProblem = None,
+        integral_tensors: Optional[Union[tuple[torch.Tensor, torch.Tensor], tuple[np.ndarray, np.ndarray]]] = None,
         initial_partial_unitary: Optional[Union[torch.Tensor, np.ndarray]] = None,
         maxiter: int = 10,
         stopping_tolerance: float = 10**-5,
@@ -34,15 +34,15 @@ class OptOrbMinimumEigensolver(BaseOptOrbSolver):
         """
         
         Args:
-            problem: An ElectronicStructureProblem from which molecule information such as one and two body integrals is obtained.
-            integral_tensors: A tuple storing the one and two body integrals of the full orbital space. The first
-                entry stores the one body integrals and the second entry stores the two body integrals in the Physicist's notation in
-                the dense spin-orbital representation, represented as either :class:`torch.Tensor` or :class:`np.ndarray`.
             num_spin_orbitals: The number of spin-orbitals to use for the active space.
             ground_state_solver: A :class:`MinimumEigensolver` used for the ground state solver subroutine.
             mapper: A QubitMapper to use for the RDM calculations.
             partial_unitary_optimizer: An instance of :class:`PartialUnitaryProjectionOptimizer` to use for
                 the basis optimization subroutine.
+            problem: An ElectronicStructureProblem from which molecule information such as one and two body integrals is obtained.
+            integral_tensors: A tuple storing the one and two body integrals of the full orbital space. The first
+                entry stores the one body integrals and the second entry stores the two body integrals in the Physicist's notation in
+                the dense spin-orbital representation, represented as either :class:`torch.Tensor` or :class:`np.ndarray`.
             initial_partial_unitary: The initial guess for the orbital rotation matrix. If ``None``, then a permutation matrix
                 selecting the spatial orbitals with the lowest energy will be generated.
             maxiter: The maximum number of outerloop iterations. (The number of times the wavefunction optimization is run.)
@@ -69,12 +69,12 @@ class OptOrbMinimumEigensolver(BaseOptOrbSolver):
 
         """
        
-        super().__init__(problem=problem,
-                         integral_tensors=integral_tensors,
-                         num_spin_orbitals=num_spin_orbitals,
+        super().__init__(num_spin_orbitals=num_spin_orbitals,
                          mapper=mapper,
                          estimator=estimator,
                          partial_unitary_optimizer=partial_unitary_optimizer,
+                         problem=problem,
+                         integral_tensors=integral_tensors,
                          initial_partial_unitary=initial_partial_unitary,
                          maxiter=maxiter,
                          stopping_tolerance=stopping_tolerance,
