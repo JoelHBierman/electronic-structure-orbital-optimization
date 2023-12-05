@@ -79,7 +79,7 @@ class TestSSVQE(QiskitAlgorithmsTestCase):
     def setUp(self):
         super().setUp()
         self.seed = 50
-        algorithm_globals.random_seed = self.seed
+        algorithm_globals.random_seed = 50
 
         self.h2_energy = -1.85727503
         self.h2_energy_excited = [-1.85727503, -1.24458455]

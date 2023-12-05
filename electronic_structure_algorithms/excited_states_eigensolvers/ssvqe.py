@@ -31,7 +31,7 @@ from qiskit.circuit.library import RealAmplitudes
 from qiskit.opflow import PauliSumOp
 from qiskit.primitives import BaseEstimator
 from qiskit.quantum_info.operators.base_operator import BaseOperator
-from qiskit.utils import algorithm_globals
+from qiskit_algorithms.utils import algorithm_globals
 from qiskit.quantum_info import Statevector
 
 from qiskit_algorithms.exceptions import AlgorithmError

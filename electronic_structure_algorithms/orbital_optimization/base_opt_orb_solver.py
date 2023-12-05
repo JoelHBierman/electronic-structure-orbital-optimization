@@ -2,7 +2,6 @@ from typing import Callable, Optional, Union, Dict, List
 from qiskit.primitives import BaseEstimator
 from .partial_unitary_projection_optimizer import PartialUnitaryProjectionOptimizer
 from qiskit_algorithms.variational_algorithm import VariationalResult
-from qiskit.opflow import PauliSumOp, OperatorBase
 from qiskit.quantum_info import SparsePauliOp
 
 from qiskit_nature.second_q.mappers import QubitMapper
@@ -149,12 +148,12 @@ class BaseOptOrbSolver():
         self._current_partial_unitary = unitary
 
     @property
-    def hamiltonian(self) -> OperatorBase:
+    def hamiltonian(self) -> SparsePauliOp:
         """Returns the Hamiltonian in the current basis."""
         return self._hamiltonian
 
     @hamiltonian.setter
-    def hamiltonian(self, op: OperatorBase) -> None:
+    def hamiltonian(self, op: SparsePauliOp) -> None:
         """Sets the Hamiltonian in the current basis."""
         self._hamiltonian = op
 
@@ -279,7 +278,8 @@ class BaseOptOrbSolver():
 
                 pauli_string_list = op.to_list()
                 for op_tuple in pauli_string_list:
-                    pauli_op_dict[str(op_tuple[0])] = PauliSumOp(SparsePauliOp(op_tuple[0]))
+                    #pauli_op_dict[str(op_tuple[0])] = PauliSumOp(SparsePauliOp(op_tuple[0]))
+                    pauli_op_dict[str(op_tuple[0])] = SparsePauliOp(op_tuple[0])
 
             return None
 
@@ -296,7 +296,8 @@ class BaseOptOrbSolver():
 
                 pauli_string_list = op.to_list()
                 for op_tuple in pauli_string_list:
-                    pauli_op_dict[str(op_tuple[0])] = PauliSumOp(SparsePauliOp(op_tuple[0]))
+                    #pauli_op_dict[str(op_tuple[0])] = PauliSumOp(SparsePauliOp(op_tuple[0]))
+                    pauli_op_dict[str(op_tuple[0])] = SparsePauliOp(op_tuple[0])
 
             return None
 
@@ -580,7 +581,7 @@ class BaseOptOrbSolver():
         
         return np.real(energy)
 
-    def get_rotated_hamiltonian(self, partial_unitary: torch.Tensor) -> OperatorBase:
+    def get_rotated_hamiltonian(self, partial_unitary: torch.Tensor) -> SparsePauliOp:
 
         """Transforms the one and two body integrals from the initial larger basis and transforms them according to
             a partial unitary matrix U. The transformed Hamiltonian is then constructed from these new integrals.

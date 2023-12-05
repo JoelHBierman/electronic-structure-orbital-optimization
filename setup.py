@@ -1,5 +1,3 @@
-"""Setup file for My Super Project."""
-
 import setuptools
 
 with open("README.md", "r") as fh:
@@ -15,5 +13,5 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     install_requires=install_requires,
     python_requires='>=3.8',
-    version='0.1.0'
+    version='0.2.0'
 )

@@ -179,7 +179,7 @@ class OptOrbMinimumEigensolver(BaseOptOrbSolver):
                 self.outer_loop_callback(outer_loop_iteration, result, optorb_result)
 
             self._energy_convergence_list.append(energy)
-            state = copy.deepcopy(result.optimal_circuit).bind_parameters(opt_params)
+            state = copy.deepcopy(result.optimal_circuit).assign_parameters(opt_params)
             
             if self.stopping_condition(outer_loop_iteration) == True:
                 break

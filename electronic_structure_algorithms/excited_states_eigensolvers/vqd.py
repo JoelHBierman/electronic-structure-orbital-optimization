@@ -32,14 +32,14 @@ from qiskit.opflow import PauliSumOp
 from qiskit.primitives import BaseEstimator
 from qiskit.algorithms.state_fidelities import BaseStateFidelity
 
-from qiskit.algorithms.list_or_dict import ListOrDict
-from qiskit.algorithms.optimizers import Optimizer, Minimizer, OptimizerResult
-from qiskit.algorithms.variational_algorithm import VariationalAlgorithm
-from qiskit.algorithms.eigensolvers.eigensolver import Eigensolver, EigensolverResult
-from qiskit.algorithms.utils import validate_bounds, validate_initial_point
-from qiskit.algorithms.exceptions import AlgorithmError
-from qiskit.algorithms.observables_evaluator import estimate_observables
-from qiskit.algorithms.utils.set_batching import _set_default_batchsize
+from qiskit_algorithms.list_or_dict import ListOrDict
+from qiskit_algorithms.optimizers import Optimizer, Minimizer, OptimizerResult
+from qiskit_algorithms.variational_algorithm import VariationalAlgorithm
+from qiskit_algorithms.eigensolvers.eigensolver import Eigensolver, EigensolverResult
+from qiskit_algorithms.utils import validate_bounds, validate_initial_point
+from qiskit_algorithms.exceptions import AlgorithmError
+from qiskit_algorithms.observables_evaluator import estimate_observables
+from qiskit_algorithms.utils.set_batching import _set_default_batchsize
 
 logger = logging.getLogger(__name__)
 

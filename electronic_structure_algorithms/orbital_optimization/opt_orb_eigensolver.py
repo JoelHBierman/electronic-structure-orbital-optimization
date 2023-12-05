@@ -1,6 +1,5 @@
 from typing import Callable, Optional, Union, Dict, List
 from qiskit.primitives import BaseEstimator
-from .partial_unitary_projection_optimizer import PartialUnitaryProjectionOptimizer
 from qiskit_algorithms.eigensolvers import Eigensolver, EigensolverResult
 from qiskit_nature.second_q.mappers import QubitMapper
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
@@ -10,6 +9,7 @@ import numpy as np
 from electronic_structure_algorithms.excited_states_eigensolvers import MCVQE, SSVQE
 
 from .base_opt_orb_solver import BaseOptOrbSolver, BaseOptOrbResult
+from .partial_unitary_projection_optimizer import PartialUnitaryProjectionOptimizer
 
 class OptOrbEigensolver(BaseOptOrbSolver):
 
