@@ -88,5 +88,13 @@ print(f'Ground state energy in cc-pVTZ basis: {-1.89226657} Ha (56 spin-orbitals
 
 ```
 
+This outputs:
+
+```
+Orbital-optimized ground state energy: -1.8712471686505392 Ha (4 spin-orbitals)
+Ground state energy in STO-3G basis: -1.85727503 Ha (4 spin-orbitals)
+Ground state energy in cc-pVTZ basis: -1.89226657 Ha (56 spin-orbitals)
+```
+
 We can see that OptOrbVQE greatly improves upon the VQE ground state energy, despite using the same number of qubits, however there is still room to improve, as evidenced by the fact that the energy in the full cc-pVTZ active space is still much more accurate. The accuracy of OptOrbVQE can be systematically improved
 by increasing the value of `num_reduced_spin_orbitals` at the cost of more qubits being required.
