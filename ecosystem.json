@@ -14,7 +14,7 @@
         "pytest"
     ],
     "styles_check_command": [
-        "pylint -rn src tests"
+        "pylint -rn electronic_structure_algorithms tests"
     ],
     "coverages_check_command": [
         "coverage3 run -m pytest",
