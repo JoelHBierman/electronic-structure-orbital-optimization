@@ -13,11 +13,7 @@
 # These tests are derived from Qiskit's VQD tests.
 
 """ Test SSVQE """
-import sys
-sys.path.append("..")
-sys.path.append(".")
 
-import pretty_errors
 import unittest
 from tests import QiskitAlgorithmsTestCase
 #import QiskitAlgorithmsTestCase

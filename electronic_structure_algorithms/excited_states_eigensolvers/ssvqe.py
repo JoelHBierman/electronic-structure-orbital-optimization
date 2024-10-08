@@ -18,7 +18,6 @@ from Qiskit's implementation of VQE.
 
 from __future__ import annotations
 
-import pretty_errors
 import logging
 import warnings
 from time import time

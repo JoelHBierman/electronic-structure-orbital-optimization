@@ -12,10 +12,6 @@
 
 """ Test SSVQE """
 
-import sys
-sys.path.append("..")
-sys.path.append(".")
-
 import unittest
 from tests.algorithms_test_case import QiskitAlgorithmsTestCase
 
