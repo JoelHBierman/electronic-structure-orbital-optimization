@@ -1,4 +1,6 @@
 """Test OptOrbVQE"""
+import sys
+sys.path.append("..")
 
 import unittest
 
@@ -14,12 +16,14 @@ from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.mappers import JordanWignerMapper
 from qiskit_algorithms.minimum_eigensolvers import VQE
 from qiskit_aer.primitives import Estimator
+#from qiskit_aer.primitives import EstimatorV2
 from qiskit_nature.second_q.circuit.library import HartreeFock, UCCSD
 from qiskit_nature.second_q.operators.tensor_ordering import to_physicist_ordering
 
 from electronic_structure_algorithms.orbital_optimization import PartialUnitaryProjectionOptimizer, OptOrbVQE
 
 estimator = Estimator(approximation=True)
+#estimator = EstimatorV2()
 mapper=JordanWignerMapper()
 
 driver = PySCFDriver(atom=f'H 0 0 0; H 0 0 {0.735}',
@@ -64,6 +68,7 @@ class TestOptOrbVQE(unittest.TestCase):
 
         self.h2_energy = -1.8661038079694765
         self.estimator = Estimator(approximation=True)
+        #self.estimator = EstimatorV2()
 
     @data(integrals)
     def test_ground_state_integrals(self, integrals):

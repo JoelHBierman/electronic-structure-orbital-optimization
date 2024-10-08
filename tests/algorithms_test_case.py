@@ -12,10 +12,12 @@
 
 """Algorithms Test Case"""
 
-from qiskit.test import QiskitTestCase
+#from qiskit_experiments.test import QiskitTestCase
 
 
-class QiskitAlgorithmsTestCase(QiskitTestCase):
+#class QiskitAlgorithmsTestCase(QiskitTestCase):
+import unittest
+class QiskitAlgorithmsTestCase(unittest.TestCase):
     """Algorithms test Case"""
 
     pass

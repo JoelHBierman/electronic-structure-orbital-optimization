@@ -27,7 +27,8 @@ import numpy as np
 
 from qiskit_algorithms.gradients import BaseEstimatorGradient
 from qiskit.circuit import QuantumCircuit
-from qiskit.opflow import PauliSumOp
+#from qiskit.opflow import PauliSumOp
+from qiskit.quantum_info import SparsePauliOp
 from qiskit.primitives import BaseEstimator
 from qiskit.quantum_info.operators.base_operator import BaseOperator
 from qiskit_algorithms.utils import algorithm_globals
@@ -68,7 +69,7 @@ class MCVQE(SSVQE):
 
     An :attr:`estimator` to compute the expectation values of operators, an integer ``k`` denoting
     the number of eigenstates that the algorithm will attempt to find, an ansatz which is a
-    :class:`QuantumCircuit`, and one of the classical :mod:`~qiskit.algorithms.optimizers`.
+    :class:`QuantumCircuit`, and one of the classical :mod:`~qiskit_algorithms.optimizers`.
 
     The ansatz is varied, via its set of parameters, by the optimizer, such that it works towards
     a set of mutually orthogonal states which span the low-lying eigenspace of
@@ -145,6 +146,7 @@ class MCVQE(SSVQE):
         one_body_integrals: np.ndarray | None = None,
         two_body_integrals: np.ndarray | None = None,
         k: int | None = 2,
+        weight_vector: list[int]|None =None,
         ansatz: QuantumCircuit | None = None,
         optimizer: Optimizer | Minimizer | None = None,
         initial_point: Sequence[float] | None = None,
@@ -191,10 +193,11 @@ class MCVQE(SSVQE):
                          initial_point=initial_point,
                          gradient=gradient,
                          callback=callback,
+                         weight_vector=weight_vector,
                          check_input_states_orthogonality=check_input_states_orthogonality)
 
         self.k = k
-        self.weight_vector = [1 for n in range(k)]
+        #self.weight_vector = weight_vector
         self.ansatz = ansatz
         self.optimizer = optimizer
         self.initial_point = initial_point
@@ -253,8 +256,9 @@ class MCVQE(SSVQE):
     def initialize_mcvqe(self) -> None:
 
         if self.excitations is None and self.initial_states is not None:
+            initial_states = [0]*len(self.initial_states)
             
-            for n, state in enumerate(initial_states):
+            for n, state in enumerate(self.initial_states):
 
                 if isinstance(state, QuantumCircuit):
 
@@ -278,6 +282,7 @@ class MCVQE(SSVQE):
                                             num_particles=self.num_particles,
                                             num_spin_orbitals=num_spin_orbitals,
                                             state_representation='dense')[:self.k]
+        print(initial_states)
 
         self.initial_states = [QuantumCircuit(self.ansatz.num_qubits) for n in range(self.k)]
         for n in range(self.k):
@@ -317,9 +322,13 @@ class MCVQE(SSVQE):
 
         initial_point = _validate_initial_point(self.initial_point, ansatz)
 
+        initial_states = self._check_operator_initial_states(self.initial_states, operator)
+
+        self.initial_states = initial_states
+
         self.initialize_mcvqe()
 
-        initial_states = self._check_operator_initial_states(self.initial_states, operator)
+        #initial_states = self._check_operator_initial_states(self.initial_states, operator)
 
         bounds = _validate_bounds(ansatz)
 
@@ -337,7 +346,7 @@ class MCVQE(SSVQE):
             evaluate_gradient = None
 
         if aux_operators:
-            zero_op = PauliSumOp.from_list([("I" * self.ansatz.num_qubits, 0)])
+            zero_op = SparsePauliOp.from_list([("I" * self.ansatz.num_qubits, 0)])
 
             # Convert the None and zero values when aux_operators is a list.
             # Drop None and convert zero values when aux_operators is a dict.
@@ -383,7 +392,8 @@ class MCVQE(SSVQE):
 
         if aux_operators is not None:
             bound_ansatz_list = [
-                initialized_ansatz_list[n].bind_parameters(optimizer_result.x)
+                #initialized_ansatz_list[n].bind_parameters(optimizer_result.x)
+                initialized_ansatz_list[n].assign_parameters(optimizer_result.x)
                 for n in range(self.k)
             ]
 

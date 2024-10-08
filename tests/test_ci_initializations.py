@@ -1,5 +1,9 @@
 """Test configuration interaction state initialization methods"""
 
+import sys
+sys.path.append("..")
+sys.path.append(".")
+
 import unittest
 
 import numpy as np

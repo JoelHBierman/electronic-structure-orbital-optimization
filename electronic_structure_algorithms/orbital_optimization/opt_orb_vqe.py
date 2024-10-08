@@ -1,8 +1,8 @@
 from typing import Callable, Optional, Union
 from qiskit.primitives import BaseEstimator
 from .partial_unitary_projection_optimizer import PartialUnitaryProjectionOptimizer
-from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolver
-from qiskit.algorithms.exceptions import AlgorithmError
+from qiskit_algorithms.minimum_eigensolvers import MinimumEigensolver
+from qiskit_algorithms.exceptions import AlgorithmError
 from qiskit_nature.second_q.mappers import QubitMapper
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
 import torch

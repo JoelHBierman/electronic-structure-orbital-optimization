@@ -2,8 +2,8 @@ from typing import Callable, Optional, Union, Dict, List
 from abc import abstractmethod
 from qiskit.primitives import BaseEstimator
 from .partial_unitary_projection_optimizer import PartialUnitaryProjectionOptimizer
-from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult, MinimumEigensolver
-from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
+from qiskit_algorithms.minimum_eigensolvers import MinimumEigensolverResult, MinimumEigensolver
+from qiskit_algorithms.minimum_eigensolvers import MinimumEigensolverResult
 from qiskit_nature.second_q.mappers import QubitMapper
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
 import torch

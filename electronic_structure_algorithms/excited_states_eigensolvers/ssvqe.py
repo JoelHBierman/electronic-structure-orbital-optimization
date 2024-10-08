@@ -18,6 +18,7 @@ from Qiskit's implementation of VQE.
 
 from __future__ import annotations
 
+import pretty_errors
 import logging
 import warnings
 from time import time
@@ -28,7 +29,8 @@ import numpy as np
 from qiskit_algorithms.gradients import BaseEstimatorGradient
 from qiskit.circuit import QuantumCircuit
 from qiskit.circuit.library import RealAmplitudes
-from qiskit.opflow import PauliSumOp
+#from qiskit.opflow import PauliSumOp
+from qiskit.quantum_info import SparsePauliOp
 from qiskit.primitives import BaseEstimator
 from qiskit.quantum_info.operators.base_operator import BaseOperator
 from qiskit_algorithms.utils import algorithm_globals
@@ -67,7 +69,7 @@ class SSVQE(VariationalAlgorithm, Eigensolver):
 
     An :attr:`estimator` to compute the expectation values of operators, an integer ``k`` denoting
     the number of eigenstates that the algorithm will attempt to find, an ansatz which is a
-    :class:`QuantumCircuit`, and one of the classical :mod:`~qiskit.algorithms.optimizers`.
+    :class:`QuantumCircuit`, and one of the classical :mod:`~qiskit_algorithms.optimizers`.
 
     The ansatz is varied, via its set of parameters, by the optimizer, such that it works towards
     a set of mutually orthogonal states, as determined by the parameters applied to the ansatz,
@@ -109,8 +111,8 @@ class SSVQE(VariationalAlgorithm, Eigensolver):
       from qiskit.quantum_info import Pauli
       from qiskit.primitives import Estimator
       from qiskit.circuit.library import RealAmplitudes
-      from qiskit.algorithms.optimizers import SPSA
-      from qiskit.algorithms.eigensolvers import SSVQE
+      from qiskit_algorithms.optimizers import SPSA
+      from qiskit_algorithms.eigensolvers import SSVQE
 
       operator = Pauli("ZZ")
       input_states = [QuantumCircuit(2), QuantumCircuit(2)]
@@ -228,8 +230,10 @@ class SSVQE(VariationalAlgorithm, Eigensolver):
 
     def compute_eigenvalues(
         self,
-        operator: BaseOperator | PauliSumOp,
-        aux_operators: ListOrDict[BaseOperator | PauliSumOp] | None = None,
+        #operator: BaseOperator | PauliSumOp,
+        operator: BaseOperator,
+        #aux_operators: ListOrDict[BaseOperator | PauliSumOp] | None = None,
+        aux_operators: BaseOperator | None = None,
     ) -> EigensolverResult:
 
         ansatz = self._check_operator_ansatz(operator)
@@ -254,7 +258,8 @@ class SSVQE(VariationalAlgorithm, Eigensolver):
             evaluate_gradient = None
 
         if aux_operators:
-            zero_op = PauliSumOp.from_list([("I" * self.ansatz.num_qubits, 0)])
+            #zero_op = PauliSumOp.from_list([("I" * self.ansatz.num_qubits, 0)])
+            zero_op = SparsePauliOp.from_list([("I" * self.ansatz.num_qubits, 0)])
 
             # Convert the None and zero values when aux_operators is a list.
             # Drop None and convert zero values when aux_operators is a dict.
@@ -300,7 +305,8 @@ class SSVQE(VariationalAlgorithm, Eigensolver):
 
         if aux_operators is not None:
             bound_ansatz_list = [
-                initialized_ansatz_list[n].bind_parameters(optimizer_result.x)
+                #initialized_ansatz_list[n].bind_parameters(optimizer_result.x)
+                initialized_ansatz_list[n].assign_parameters(optimizer_result.x)
                 for n in range(self.k)
             ]
 
@@ -322,7 +328,8 @@ class SSVQE(VariationalAlgorithm, Eigensolver):
     def _get_evaluate_weighted_energy_sum(
         self,
         initialized_ansatz_list: list[QuantumCircuit],
-        operator: BaseOperator | PauliSumOp,
+        #operator: BaseOperator | PauliSumOp,
+        operator: BaseOperator,
     ) -> tuple[Callable[[np.ndarray], float | list[float]], dict]:
         """Returns a function handle to evaluate the weighted energy sum at given parameters
         for the ansatz. This is the objective function to be passed to the optimizer
@@ -378,7 +385,8 @@ class SSVQE(VariationalAlgorithm, Eigensolver):
     def _get_evalute_gradient(
         self,
         initialized_ansatz_list: list[QuantumCircuit],
-        operator: BaseOperator | PauliSumOp,
+        #operator: BaseOperator | PauliSumOp,
+        operator: BaseOperator,
     ) -> tuple[Callable[[np.ndarray], np.ndarray]]:
         """Get a function handle to evaluate the gradient at given parameters for the ansatz.
         Args:
@@ -411,7 +419,8 @@ class SSVQE(VariationalAlgorithm, Eigensolver):
         return evaluate_gradient
 
     def _check_circuit_num_qubits(
-        self, operator: BaseOperator | PauliSumOp, circuit: QuantumCircuit, circuit_type: str
+        #self, operator: BaseOperator | PauliSumOp, circuit: QuantumCircuit, circuit_type: str
+        self, operator: BaseOperator, circuit: QuantumCircuit, circuit_type: str
     ) -> QuantumCircuit:
         """Check that the number of qubits for the circuit passed matches
         the number of qubits  of the operator.
@@ -432,7 +441,8 @@ class SSVQE(VariationalAlgorithm, Eigensolver):
                 ) from error
         return circuit
 
-    def _check_operator_ansatz(self, operator: BaseOperator | PauliSumOp) -> QuantumCircuit:
+    #def _check_operator_ansatz(self, operator: BaseOperator | PauliSumOp) -> QuantumCircuit:
+    def _check_operator_ansatz(self, operator: BaseOperator) -> QuantumCircuit:
         """Check that the number of qubits of operator and ansatz match and that the ansatz is
         parameterized.
         """
@@ -448,11 +458,14 @@ class SSVQE(VariationalAlgorithm, Eigensolver):
 
         if ansatz.num_parameters == 0:
             raise AlgorithmError("The ansatz must be parameterized, but has no free parameters.")
+        
+        self.ansatz = ansatz
 
         return ansatz
 
     def _check_operator_initial_states(
-        self, list_of_states: list[QuantumCircuit] | None, operator: BaseOperator | PauliSumOp
+        #self, list_of_states: list[QuantumCircuit] | None, operator: BaseOperator | PauliSumOp
+        self, list_of_states: list[QuantumCircuit] | None, operator: BaseOperator
     ) -> QuantumCircuit:
 
         """Check that the number of qubits of operator and all the initial states match."""
@@ -503,7 +516,8 @@ class SSVQE(VariationalAlgorithm, Eigensolver):
     def _eval_aux_ops(
         self,
         ansatz: QuantumCircuit,
-        aux_operators: ListOrDict[BaseOperator | PauliSumOp],
+        #aux_operators: ListOrDict[BaseOperator | PauliSumOp],
+        aux_operators: BaseOperator,
     ) -> ListOrDict[tuple(complex, complex)]:
         """Compute auxiliary operator eigenvalues."""
 
@@ -534,7 +548,8 @@ class SSVQE(VariationalAlgorithm, Eigensolver):
         optimizer_result: OptimizerResult,
         aux_operators_evaluated: ListOrDict[tuple[complex, tuple[complex, int]]],
         optimizer_time: float,
-        operator: BaseOperator | PauliSumOp,
+        #operator: BaseOperator | PauliSumOp,
+        operator: BaseOperator,
         initialized_ansatz_list: list[QuantumCircuit],
     ) -> SSVQEResult:
         result = SSVQEResult()
@@ -553,6 +568,9 @@ class SSVQE(VariationalAlgorithm, Eigensolver):
 
         result.cost_function_evals = optimizer_result.nfev
         result.optimal_point = optimizer_result.x
+        #print(self.ansatz)
+        #print(initialized_ansatz_list)
+        #print(optimizer_result.x)
         result.optimal_parameters = dict(zip(self.ansatz.parameters, optimizer_result.x))
         result.optimal_value = optimizer_result.fun
         result.optimizer_time = optimizer_time
