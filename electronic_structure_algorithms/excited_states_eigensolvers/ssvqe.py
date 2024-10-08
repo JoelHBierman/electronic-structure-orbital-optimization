@@ -502,7 +502,7 @@ class SSVQE(VariationalAlgorithm, Eigensolver):
 
         return initial_states
 
-    def _check_weight_vector(self, weight_vector: Sequence[float]) -> Sequence[float]:
+    def _check_weight_vector(self, weight_vector: Sequence[float] = None) -> Sequence[float]:
         """Check that the number of weights matches the number of states."""
         if weight_vector is None:
             weight_vector = [self.k - n for n in range(self.k)]
