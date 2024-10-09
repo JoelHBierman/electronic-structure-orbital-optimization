@@ -6,7 +6,7 @@ jobs:
   stable:
     runs-on: ubuntu-latest
     env:
-      python-version: "3.9"
+      python-version: "3.12.5"
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ env.python-version }}
@@ -32,7 +32,7 @@ jobs:
   dev:
     runs-on: ubuntu-latest
     env:
-      python-version: "3.9"
+      python-version: "3.12.5"
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ env.python-version }}
