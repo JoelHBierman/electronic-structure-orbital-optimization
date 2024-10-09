@@ -1,8 +1,5 @@
 """Test OptOrbMCVQE"""
 
-import sys
-sys.path.append('..')
-
 import unittest
 
 import numpy as np
