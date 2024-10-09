@@ -1,4 +1,6 @@
 from typing import Callable, Optional, Union, Dict, List
+from collections.abc import Callable, Sequence
+from qiskit_algorithms.exceptions import AlgorithmError
 from qiskit.primitives import BaseEstimator
 from qiskit_algorithms.eigensolvers import Eigensolver, EigensolverResult
 from qiskit_nature.second_q.mappers import QubitMapper
@@ -89,8 +91,21 @@ class OptOrbEigensolver(BaseOptOrbSolver):
             self.weight_vector = excited_states_solver.weight_vector
         else:
             self.weight_vector = [self.num_states - n for n in range(self.num_states)]
+        
+        self.weight_vector = self._check_weight_vector(self.weight_vector)
         self._energy_convergence_list = []
         self._pauli_ops_expectation_values_dict_list = None
+
+    def _check_weight_vector(self, weight_vector: Sequence[float] = None) -> Sequence[float]:
+        """Check that the number of weights matches the number of states."""
+        if weight_vector is None:
+            weight_vector = [self.num_states - n for n in range(self.num_states)]
+        elif len(weight_vector) != self.num_states:
+            raise AlgorithmError(
+                "The number of weights provided does not match the number of states."
+            )
+
+        return weight_vector
 
     @property
     def energy_convergence_list(self) -> List[float]:
@@ -194,7 +209,7 @@ class OptOrbEigensolver(BaseOptOrbSolver):
                 break
 
             string_op_tuple_list = [(key, self._pauli_op_dict[key]) for key in self._pauli_op_dict]
-            
+
             results = [[] for n in range(self.num_states)]
             for n in range(self.num_states):
                 ops_counter = 1

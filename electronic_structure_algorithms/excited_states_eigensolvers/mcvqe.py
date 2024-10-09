@@ -283,7 +283,9 @@ class MCVQE(SSVQE):
                                             num_spin_orbitals=num_spin_orbitals,
                                             state_representation='dense')[:self.k]
 
-        self.initial_states = [QuantumCircuit(self.ansatz.num_qubits) for n in range(self.k)]
+        if self.initial_states is None:
+            self.initial_states = [QuantumCircuit(self.ansatz.num_qubits) for n in range(self.k)]
+            
         for n in range(self.k):
             self.initial_states[n].initialize(initial_states[n], self.initial_states[n].qubits)
 
@@ -313,8 +315,8 @@ class MCVQE(SSVQE):
     
     def compute_eigenvalues(
         self,
-        operator: BaseOperator | PauliSumOp,
-        aux_operators: ListOrDict[BaseOperator | PauliSumOp] | None = None,
+        operator: BaseOperator,
+        aux_operators: BaseOperator | None = None,
     ) -> EigensolverResult:
 
         ansatz = self._check_operator_ansatz(operator)
@@ -416,7 +418,7 @@ class MCVQE(SSVQE):
         optimizer_result: OptimizerResult,
         aux_operators_evaluated: ListOrDict[tuple[complex, tuple[complex, int]]],
         optimizer_time: float,
-        operator: BaseOperator | PauliSumOp,
+        operator: BaseOperator,
         initialized_ansatz_list: list[QuantumCircuit],
     ) -> MCVQEResult:
         result = MCVQEResult()
