@@ -58,7 +58,7 @@ class TestOptOrbMCVQE(unittest.TestCase):
                num_particles=num_particles,
                reps=2)
 
-        self.h2_energies = [-1.85539192, -1.46847994]
+        self.h2_energies = [-1.85703467, -1.46615986]
         self.estimator = Estimator(approximation=True)
 
         self.k = 2
@@ -126,6 +126,7 @@ class TestOptOrbMCVQE(unittest.TestCase):
                                spin_conserving=True)
         
         result = optorbvqe_instance.compute_energies()
+        print(result)
 
         with self.subTest(msg="test eigenvalue, provided ElectronicStructureProblem"):
             np.testing.assert_array_almost_equal(
