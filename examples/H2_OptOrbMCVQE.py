@@ -69,6 +69,7 @@ mcvqe_instance = MCVQE(k=2,
                    estimator=estimator,
                    callback=mcvqe_callback)
 
+mcvqe_instance.weight_vector = mcvqe_instance._check_weight_vector()
 optorbvqe_instance = OptOrbMCVQE(problem=q_molecule,
                                integral_tensors = None,
                                num_spin_orbitals=num_reduced_qubits,

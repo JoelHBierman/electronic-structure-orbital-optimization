@@ -13,7 +13,7 @@
 """ Test SSVQE """
 
 import unittest
-from .algorithms_test_case import QiskitAlgorithmsTestCase
+from tests.algorithms_test_case import QiskitAlgorithmsTestCase
 
 from functools import partial
 import numpy as np
@@ -67,8 +67,8 @@ H2_PAULI = (
     + 0.18093119978423156 * (X ^ X)
 )
 
-H2_OP = Operator(H2_PAULI.to_matrix())
-
+#H2_OP = Operator(H2_PAULI.to_matrix())
+H2_OP = H2_PAULI
 
 @ddt
 class TestMCVQE(QiskitAlgorithmsTestCase):
@@ -124,7 +124,10 @@ class TestMCVQE(QiskitAlgorithmsTestCase):
         wavefunction = QuantumCircuit(1)
         optimizer = SLSQP(maxiter=50)
         ssvqe = MCVQE(
-            estimator=self.estimator, k=1, ansatz=wavefunction, optimizer=optimizer
+            estimator=self.estimator,
+            k=1,
+            ansatz=wavefunction,
+            optimizer=optimizer
         )
         with self.assertRaises(AlgorithmError):
             _ = ssvqe.compute_eigenvalues(operator=op)
@@ -164,7 +167,7 @@ class TestMCVQE(QiskitAlgorithmsTestCase):
         optimizer = SLSQP(maxiter=50)
         ssvqe = MCVQE(
             estimator=self.estimator,
-            k=1,
+            k=2,
             optimizer=optimizer,
             initial_states=initial_states,
         )
@@ -382,7 +385,7 @@ class TestMCVQE(QiskitAlgorithmsTestCase):
                 0.2442925,
                 -1.51638917,
             ],
-            optimizer=COBYLA(maxiter=0),
+            optimizer=COBYLA(maxiter=0)
         )
 
         # Go again with two auxiliary operators

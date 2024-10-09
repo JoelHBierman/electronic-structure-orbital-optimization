@@ -129,3 +129,10 @@ dmypy.json
 .pyre/
 
 .idea/
+
+#Vitural env
+
+orbvqe/
+environment.yml
+tests/*.logs
+tests/TODO.md

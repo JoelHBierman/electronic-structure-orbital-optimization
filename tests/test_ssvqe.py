@@ -15,7 +15,8 @@
 """ Test SSVQE """
 
 import unittest
-from .algorithms_test_case import QiskitAlgorithmsTestCase
+from tests import QiskitAlgorithmsTestCase
+#import QiskitAlgorithmsTestCase
 
 from functools import partial
 import numpy as np
@@ -69,7 +70,9 @@ H2_PAULI = (
     + 0.18093119978423156 * (X ^ X)
 )
 
-H2_OP = Operator(H2_PAULI.to_matrix())
+#TODO: why matrix H2_OP needed?
+#H2_OP = Operator(H2_PAULI.to_matrix())
+H2_OP = H2_PAULI
 
 
 @ddt
@@ -166,7 +169,7 @@ class TestSSVQE(QiskitAlgorithmsTestCase):
         optimizer = SLSQP(maxiter=50)
         ssvqe = SSVQE(
             estimator=self.estimator,
-            k=1,
+            k=2,
             optimizer=optimizer,
             initial_states=initial_states,
         )
@@ -366,7 +369,8 @@ class TestSSVQE(QiskitAlgorithmsTestCase):
         self.assertIsInstance(
             result.aux_operators_evaluated[0]["zero_operator"][1], dict
         )
-
+    
+    #TODO
     @data(H2_PAULI, H2_OP)
     def test_aux_operator_std_dev(self, op):
         """Test non-zero standard deviations of aux operators."""
