@@ -282,7 +282,6 @@ class MCVQE(SSVQE):
                                             num_particles=self.num_particles,
                                             num_spin_orbitals=num_spin_orbitals,
                                             state_representation='dense')[:self.k]
-        print(initial_states)
 
         self.initial_states = [QuantumCircuit(self.ansatz.num_qubits) for n in range(self.k)]
         for n in range(self.k):

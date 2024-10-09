@@ -28,7 +28,6 @@ import numpy as np
 from qiskit_algorithms.gradients import BaseEstimatorGradient
 from qiskit.circuit import QuantumCircuit
 from qiskit.circuit.library import RealAmplitudes
-#from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info import SparsePauliOp
 from qiskit.primitives import BaseEstimator
 from qiskit.quantum_info.operators.base_operator import BaseOperator
@@ -567,9 +566,6 @@ class SSVQE(VariationalAlgorithm, Eigensolver):
 
         result.cost_function_evals = optimizer_result.nfev
         result.optimal_point = optimizer_result.x
-        #print(self.ansatz)
-        #print(initialized_ansatz_list)
-        #print(optimizer_result.x)
         result.optimal_parameters = dict(zip(self.ansatz.parameters, optimizer_result.x))
         result.optimal_value = optimizer_result.fun
         result.optimizer_time = optimizer_time
