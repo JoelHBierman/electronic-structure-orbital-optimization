@@ -264,8 +264,6 @@ class MCVQE(SSVQE):
 
                     initial_states[n] = np.asarray(Statevector(state))
 
-            self.initial_states = initial_states
-
         if self.excitations == 's':
             
             num_spin_orbitals = self.one_body_integrals.shape[0]
@@ -285,6 +283,8 @@ class MCVQE(SSVQE):
 
         if self.initial_states is None:
             self.initial_states = [QuantumCircuit(self.ansatz.num_qubits) for n in range(self.k)]
+        
+        #self.initial_states = [QuantumCircuit(self.ansatz.num_qubits) for n in range(self.k)]
             
         for n in range(self.k):
             self.initial_states[n].initialize(initial_states[n], self.initial_states[n].qubits)
