@@ -11,8 +11,7 @@
 # that they have been altered from the originals.
 
 """ Test SSVQE """
-import sys
-sys.path.append('..')
+
 import unittest
 from tests.algorithms_test_case import QiskitAlgorithmsTestCase
 
